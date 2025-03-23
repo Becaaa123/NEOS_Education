@@ -1,3 +1,22 @@
+//LINKANDO COM O BACKEND
+async function fetchAlunos() {
+    try {
+        const response = await fetch('http://localhost:8080/api/neos'); 
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const alunos = await response.json();
+        const alunosList = document.getElementById('alunos-list');
+        alunos.forEach(aluno => {
+            const li = document.createElement('li');
+            li.textContent = `${aluno.nome} - ${aluno.email}`;
+            alunosList.appendChild(li);
+        });
+    } catch (error) {
+        console.error('Houve um problema com a requisição:', error);
+    }
+}
+//==================================================================================================================================
 //SEÇÕS
 document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -74,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Envia os dados para o servidor
         try {
-            const response = await fetch("https://seu-servidor.com/api/matricula", {
+            const response = await fetch("http://localhost:8080/api/neos", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
