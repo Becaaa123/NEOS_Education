@@ -33,10 +33,6 @@ document.addEventListener("DOMContentLoaded", function() {
     form.addEventListener("submit", async function(event) {
         event.preventDefault();
 
-        if (!validarCamposObrigatorios()) {
-            alert("Preencha todos os campos obrigatórios!");
-            return;
-        }
         if (!validarCPF(cpfInput.value)) {
             alert("CPF inválido! Digite no formato 000.000.000-00.");
             return;
@@ -57,6 +53,7 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
+    
         const dadosAluno = {
             nome: document.getElementById("nomeAluno").value,
             cpf: cpfInput.value,
@@ -72,43 +69,39 @@ document.addEventListener("DOMContentLoaded", function() {
             turno: document.getElementById("turno").value
         };
 
-        // Envia os dados para o servidor
-        try {
-            const response = await fetch("http://localhost:8080/api/neos", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(dadosAluno)
-            });
-
-            if (!response.ok) {
-                throw new Error("Erro ao enviar matrícula: " + response.statusText);
-            }
-
-            const data = await response.json();
+        // Função que envia os docs para o servidor . Tem que alterar esse link para conectar com o servidor .
+        fetch("http://localhost:8080/api/neos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dadosAluno)
+        })
+        .then(response => response.json())
+        .then(data => {
             alert("Matrícula concluída com sucesso!");
             console.log("Resposta do servidor:", data);
-        } catch (error) {
+        })
+        .catch(error => {
             console.error("Erro ao enviar matrícula:", error);
             alert("Erro ao enviar matrícula. Tente novamente mais tarde.");
-        }
+        });
     });
 
-    // Verifica se o CPF já está no servidor
+    // verifica se o cpf ja esta no servidor
     async function verificarCPFNoServidor(cpf) {
-        try {
-            const response = await fetch(`https://seu-servidor.com/api/verificar-cpf?cpf=${cpf}`);
+        try {                                       // altera o link aqui para conectar com o backend . Assim saberemos se o cpf e repetido
+            const response = await fetch(`http://localhost:8080/api/neos-cpf?cpf=${cpf}`);
             const data = await response.json();
-            return data.existe; // Retorna verdadeiro se o CPF já estiver no servidor
+            return data.existe; // Retorna como falso se cpf estiver no servidor
         } catch (error) {
             console.error("Erro ao verificar CPF:", error);
-            return false; // Retorna falso em caso de erro
+            return false;
         }
     }
 });
 
-// Valida campos obrigatórios
+// valida por aqui
 function validarCamposObrigatorios() {
     const campos = document.querySelectorAll("[required]");
     for (let campo of campos) {
@@ -119,17 +112,14 @@ function validarCamposObrigatorios() {
     return true;
 }
 
-// Valida CPF
 function validarCPF(cpf) {
     return /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf);
 }
 
-// Valida RG
 function validarRG(rg) {
     return /^[A-Za-z0-9.-]+$/.test(rg);
 }
 
-// Valida telefone
 function validarTelefone(telefone) {
     return /^\+?[0-9-]{8,15}$/.test(telefone);
 }
